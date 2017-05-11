@@ -51,7 +51,8 @@ modules:
 	cd codebase/spoa && git checkout overlap
 #	git submodule foreach git pull origin master
 
-tools: tools/graphmap/bin/Linux-x64/graphmap tools/graphmap/bin/graphmap-not_release tools/edlib/src/aligner tools/minimap/minimap tools/miniasm/miniasm
+TOOLS = tools/graphmap/bin/Linux-x64/graphmap tools/graphmap/bin/graphmap-not_release tools/edlib/src/aligner tools/minimap/minimap tools/miniasm/miniasm
+tools: $(TOOLS)
 	echo "All tools installed."
 
 tools/graphmap/bin/Linux-x64/graphmap:
@@ -157,4 +158,14 @@ rebuildmac: cleanmac mac
 
 divsufsort:
 	cd libs; ./build-libdivsufsort.sh
+
+ifeq ($(PREFIX),)
+install:
+	$(info please define the PREFIX variable to install)
+else
+install: $(TOOLS) $(BIN_LINUX)
+	mkdir -p $(PREFIX)/bin
+	$(foreach tool, $(TOOLS) $(BIN_LINUX), mkdir -p $(PREFIX)/$(dir $(tool)) && ) echo "mkdirs"
+	$(foreach tool, $(TOOLS) $(BIN_LINUX), cp -p $(tool) $(PREFIX)/$(tool) && ) echo "installed"
+endif
 
